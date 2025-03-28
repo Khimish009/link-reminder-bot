@@ -3,12 +3,16 @@ package main
 import (
 	"flag"
 	"log"
+
+	"github.com/Khimish009/link-reminder-bot/clients/telegram"
+)
+
+const (
+	tgBotHost = "api.telegram.org"
 )
 
 func main() {
-	token = mustToken()
-	
-	// tgClient = telegram.New(token)
+	tgClient = telegram.New(tgBotHost, mustToken())
 
 	// fetcher = fetcher.New()
 
