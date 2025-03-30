@@ -8,7 +8,7 @@ import (
 	"path"
 	"strconv"
 
-	"github.com/Khimish009/link-reminder-bot/lib/e"
+	"link-reminder-bot/lib/e"
 )
 
 type Client struct {

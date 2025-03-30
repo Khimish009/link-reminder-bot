@@ -1,3 +1,3 @@
-module github.com/Khimish009/link-reminder-bot
+module link-reminder-bot
 
 go 1.24.1

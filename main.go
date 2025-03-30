@@ -4,7 +4,7 @@ import (
 	"flag"
 	"log"
 
-	"github.com/Khimish009/link-reminder-bot/clients/telegram"
+	"link-reminder-bot/clients/telegram"
 )
 
 const (
