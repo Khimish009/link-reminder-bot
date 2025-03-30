@@ -2,13 +2,18 @@ package files
 
 import (
 	"encoding/gob"
+	"errors"
 	"link-reminder-bot/lib/e"
 	"link-reminder-bot/storage"
+	"math/rand"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 const defaultPerm = 0774
+
+var ErrNoSavedPage = errors.New("no saved page")
 
 type Storage struct {
 	baseUrl string
@@ -21,7 +26,7 @@ func New(baseUrl string) Storage {
 }
 
 func (s Storage) Save(page *storage.Page) (err error) {
-	defer func() { err = e.WrapIfErr("can't save", err) }()
+	defer func() { err = e.WrapIfErr("can't save page", err) }()
 
 	fPath := filepath.Join(s.baseUrl, page.UserName)
 
@@ -50,6 +55,47 @@ func (s Storage) Save(page *storage.Page) (err error) {
 	}
 
 	return nil
+}
+
+func (s *Storage) PickRandom(userName string) (page *storage.Page, err error) {
+	defer func() { err = e.WrapIfErr("can't pick random page", err) }()
+
+	path := filepath.Join(s.baseUrl, userName)
+
+	files, err := os.ReadDir(path)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if len(files) == 0 {
+		return nil, ErrNoSavedPage
+	}
+
+	rand.New(rand.NewSource(time.Now().UnixNano()))
+	n := rand.Intn(len(files))
+
+	file := files[n]
+
+	return s.decodePage(filepath.Join(s.baseUrl, file.Name()))
+}
+
+func (s *Storage) decodePage(filePath string) (*storage.Page, error) {
+	f, err := os.Open(filePath)
+
+	if err != nil {
+		return nil, e.Wrap("can't decode page", err)
+	}
+
+	defer func() { _ = f.Close() }()
+
+	var p storage.Page
+
+	if err := gob.NewDecoder(f).Decode(&p); err != nil {
+		return nil, e.Wrap("can't decode page", err)
+	}
+
+	return &p, nil
 }
 
 func fileName(page *storage.Page) (string, error) {
