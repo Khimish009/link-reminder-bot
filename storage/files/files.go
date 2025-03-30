@@ -3,6 +3,7 @@ package files
 import (
 	"encoding/gob"
 	"errors"
+	"fmt"
 	"link-reminder-bot/lib/e"
 	"link-reminder-bot/storage"
 	"math/rand"
@@ -78,6 +79,24 @@ func (s *Storage) PickRandom(userName string) (page *storage.Page, err error) {
 	file := files[n]
 
 	return s.decodePage(filepath.Join(s.baseUrl, file.Name()))
+}
+
+func (s *Storage) Remove(page *storage.Page) error {
+	fileName, err := fileName(page)
+
+	if err != nil {
+		return e.Wrap("can't remove file", err)
+	}
+
+	path := filepath.Join(s.baseUrl, page.UserName, fileName)
+
+	if err := os.Remove(path); err != nil {
+		msg := fmt.Sprintf("can't remove file %s", path)
+
+		return e.Wrap(msg, err)
+	}
+
+	return nil
 }
 
 func (s *Storage) decodePage(filePath string) (*storage.Page, error) {
