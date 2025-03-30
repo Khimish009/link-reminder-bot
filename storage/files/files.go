@@ -99,6 +99,27 @@ func (s *Storage) Remove(page *storage.Page) error {
 	return nil
 }
 
+func (s *Storage) IsExist(page *storage.Page) (bool, error) {
+	fileName, err := fileName(page)
+
+	if err != nil {
+		return false, e.Wrap("can't check if file exist", err)
+	}
+
+	path := filepath.Join(s.baseUrl, page.UserName, fileName)
+
+	switch _, err := os.Stat(path); {
+	case errors.Is(err, os.ErrNotExist):
+		return false, nil
+	case err != nil:
+		msg := fmt.Sprintf("can't check if file %s exists", path)
+		
+		return false, e.Wrap(msg, err)
+	}
+
+	return true, nil
+}
+
 func (s *Storage) decodePage(filePath string) (*storage.Page, error) {
 	f, err := os.Open(filePath)
 
