@@ -4,17 +4,16 @@ import (
 	"encoding/gob"
 	"errors"
 	"fmt"
-	"link-reminder-bot/lib/e"
-	"link-reminder-bot/storage"
 	"math/rand"
 	"os"
 	"path/filepath"
 	"time"
+
+	"link-reminder-bot/lib/e"
+	"link-reminder-bot/storage"
 )
 
-const defaultPerm = 0774
-
-var ErrNoSavedPage = errors.New("no saved page")
+const defaultPerm = 0o774
 
 type Storage struct {
 	baseUrl string
@@ -36,7 +35,6 @@ func (s Storage) Save(page *storage.Page) (err error) {
 	}
 
 	fileName, err := fileName(page)
-
 	if err != nil {
 		return err
 	}
@@ -44,7 +42,6 @@ func (s Storage) Save(page *storage.Page) (err error) {
 	fPath = filepath.Join(fPath, fileName)
 
 	file, err := os.Create(fPath)
-
 	if err != nil {
 		return err
 	}
@@ -64,13 +61,12 @@ func (s *Storage) PickRandom(userName string) (page *storage.Page, err error) {
 	path := filepath.Join(s.baseUrl, userName)
 
 	files, err := os.ReadDir(path)
-
 	if err != nil {
 		return nil, err
 	}
 
 	if len(files) == 0 {
-		return nil, ErrNoSavedPage
+		return nil, storage.ErrNoSavedPage
 	}
 
 	rand.New(rand.NewSource(time.Now().UnixNano()))
@@ -83,7 +79,6 @@ func (s *Storage) PickRandom(userName string) (page *storage.Page, err error) {
 
 func (s *Storage) Remove(page *storage.Page) error {
 	fileName, err := fileName(page)
-
 	if err != nil {
 		return e.Wrap("can't remove file", err)
 	}
@@ -101,7 +96,6 @@ func (s *Storage) Remove(page *storage.Page) error {
 
 func (s *Storage) IsExist(page *storage.Page) (bool, error) {
 	fileName, err := fileName(page)
-
 	if err != nil {
 		return false, e.Wrap("can't check if file exist", err)
 	}
@@ -113,7 +107,7 @@ func (s *Storage) IsExist(page *storage.Page) (bool, error) {
 		return false, nil
 	case err != nil:
 		msg := fmt.Sprintf("can't check if file %s exists", path)
-		
+
 		return false, e.Wrap(msg, err)
 	}
 
@@ -122,7 +116,6 @@ func (s *Storage) IsExist(page *storage.Page) (bool, error) {
 
 func (s *Storage) decodePage(filePath string) (*storage.Page, error) {
 	f, err := os.Open(filePath)
-
 	if err != nil {
 		return nil, e.Wrap("can't decode page", err)
 	}

@@ -2,8 +2,10 @@ package storage
 
 import (
 	"crypto/sha1"
+	"errors"
 	"fmt"
 	"io"
+
 	"link-reminder-bot/lib/e"
 )
 
@@ -15,9 +17,11 @@ type Storage interface {
 }
 
 type Page struct {
-	URL string
+	URL      string
 	UserName string
 }
+
+var ErrNoSavedPage = errors.New("no saved page")
 
 func (p Page) Hash() (string, error) {
 	hash := sha1.New()

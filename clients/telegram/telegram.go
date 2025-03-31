@@ -12,25 +12,25 @@ import (
 )
 
 type Client struct {
-	host string
+	host     string
 	basePath string
-	client http.Client
+	client   http.Client
 }
 
 const (
-	getUpdatesMethod = "getUpdates"
+	getUpdatesMethod  = "getUpdates"
 	sendMessageMethod = "sendMessage"
 )
 
 func New(host string, token string) Client {
 	return Client{
-		host: host,
+		host:     host,
 		basePath: newBasePath(token),
-		client: http.Client{},
+		client:   http.Client{},
 	}
 }
 
-func newBasePath(token string) string  {
+func newBasePath(token string) string {
 	return "bot" + token
 }
 
@@ -40,7 +40,6 @@ func (c *Client) Updates(offset int, limit int) ([]Update, error) {
 	q.Add("limit", strconv.Itoa(limit))
 
 	data, err := c.doRequest(getUpdatesMethod, q)
-
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +59,6 @@ func (c *Client) SendMessage(chatId int, text string) error {
 	q.Add("text", text)
 
 	_, err := c.doRequest(sendMessageMethod, q)
-
 	if err != nil {
 		return e.Wrap("can't send message", err)
 	}
@@ -68,17 +66,16 @@ func (c *Client) SendMessage(chatId int, text string) error {
 	return nil
 }
 
-func (c *Client)  doRequest(method string, query url.Values) ([]byte, error) {
+func (c *Client) doRequest(method string, query url.Values) ([]byte, error) {
 	const errMsg = "can't do request"
-	
+
 	u := url.URL{
 		Scheme: "https",
-		Host: c.host,
-		Path: path.Join(c.basePath, method),
+		Host:   c.host,
+		Path:   path.Join(c.basePath, method),
 	}
 
 	req, err := http.NewRequest(http.MethodGet, u.String(), nil)
-
 	if err != nil {
 		return nil, e.Wrap(errMsg, err)
 	}
@@ -86,15 +83,13 @@ func (c *Client)  doRequest(method string, query url.Values) ([]byte, error) {
 	req.URL.RawQuery = query.Encode()
 
 	resp, err := c.client.Do(req)
-
 	if err != nil {
 		return nil, e.Wrap(errMsg, err)
 	}
 
-	defer func() {_ = resp.Body.Close()}()
+	defer func() { _ = resp.Body.Close() }()
 
 	body, err := io.ReadAll(resp.Body)
-
 	if err != nil {
 		return nil, err
 	}
