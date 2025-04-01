@@ -4,25 +4,35 @@ import (
 	"flag"
 	"log"
 
-	"link-reminder-bot/clients/telegram"
+	tgClient "link-reminder-bot/clients/telegram"
+	"link-reminder-bot/consumer/event_consumer"
+	"link-reminder-bot/events/telegram"
+	"link-reminder-bot/storage/files"
 )
 
 const (
-	tgBotHost = "api.telegram.org"
+	tgBotHost   = "api.telegram.org"
+	storagePath = "files_storage"
+	batchSize   = 100
 )
 
 func main() {
-	tgClient = telegram.New(tgBotHost, mustToken())
+	eventsProcessor := telegram.New(
+		tgClient.New(tgBotHost, mustToken()),
+		files.New(storagePath),
+	)
 
-	// fetcher = fetcher.New()
+	log.Print("service started")
 
-	// processor = processor.New()
+	consumer := event_consumer.New(eventsProcessor, eventsProcessor, batchSize)
 
-	// consumer.Start(fetcher, processor)
+	if err := consumer.Start(); err != nil {
+		log.Fatal("service is stopped", err)
+	}
 }
 
-func mustToken() (string) {
-	token := flag.String("token-bot-token", "", "token for access to telegram bot")
+func mustToken() string {
+	token := flag.String("tg-bot-token", "", "token for access to telegram bot")
 
 	flag.Parse()
 
@@ -32,4 +42,3 @@ func mustToken() (string) {
 
 	return *token
 }
- 

@@ -86,7 +86,7 @@ func (p *Processor) sendRandom(chatID int, username string) (err error) {
 }
 
 func (p *Processor) sendHelp(chatID int) error {
-	return p.tg.SendMessage(chatID, msgHelp)
+	return p.tg.SendMessage(chatID, msgHello)
 }
 
 func (p *Processor) sendHello(chatID int) error {
