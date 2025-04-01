@@ -1,13 +1,15 @@
 package main
 
 import (
-	"flag"
 	"log"
+	"os"
 
 	tgClient "link-reminder-bot/clients/telegram"
 	"link-reminder-bot/consumer/event_consumer"
 	"link-reminder-bot/events/telegram"
 	"link-reminder-bot/storage/files"
+
+	"github.com/joho/godotenv"
 )
 
 const (
@@ -15,6 +17,12 @@ const (
 	storagePath = "files_storage"
 	batchSize   = 100
 )
+
+func init() {
+	if err := godotenv.Load(); err != nil {
+		log.Println("No .env file found")
+	}
+}
 
 func main() {
 	eventsProcessor := telegram.New(
@@ -32,13 +40,11 @@ func main() {
 }
 
 func mustToken() string {
-	token := flag.String("tg-bot-token", "", "token for access to telegram bot")
+	token := os.Getenv("TG_BOT_TOKEN")
 
-	flag.Parse()
-
-	if *token == "" {
+	if token == "" {
 		log.Fatal("token is not specified")
 	}
 
-	return *token
+	return token
 }
