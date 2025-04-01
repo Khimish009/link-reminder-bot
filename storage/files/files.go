@@ -55,7 +55,7 @@ func (s Storage) Save(page *storage.Page) (err error) {
 	return nil
 }
 
-func (s *Storage) PickRandom(userName string) (page *storage.Page, err error) {
+func (s Storage) PickRandom(userName string) (page *storage.Page, err error) {
 	defer func() { err = e.WrapIfErr("can't pick random page", err) }()
 
 	path := filepath.Join(s.basePath, userName)
@@ -66,7 +66,7 @@ func (s *Storage) PickRandom(userName string) (page *storage.Page, err error) {
 	}
 
 	if len(files) == 0 {
-		return nil, storage.ErrNoSavedPage
+		return nil, storage.ErrNoSavedPages
 	}
 
 	rand.New(rand.NewSource(time.Now().UnixNano()))
@@ -74,10 +74,10 @@ func (s *Storage) PickRandom(userName string) (page *storage.Page, err error) {
 
 	file := files[n]
 
-	return s.decodePage(filepath.Join(s.basePath, file.Name()))
+	return s.decodePage(filepath.Join(path, file.Name()))
 }
 
-func (s *Storage) Remove(page *storage.Page) error {
+func (s Storage) Remove(page *storage.Page) error {
 	fileName, err := fileName(page)
 	if err != nil {
 		return e.Wrap("can't remove file", err)
@@ -94,7 +94,7 @@ func (s *Storage) Remove(page *storage.Page) error {
 	return nil
 }
 
-func (s *Storage) IsExist(page *storage.Page) (bool, error) {
+func (s Storage) IsExist(page *storage.Page) (bool, error) {
 	fileName, err := fileName(page)
 	if err != nil {
 		return false, e.Wrap("can't check if file exist", err)
@@ -114,7 +114,7 @@ func (s *Storage) IsExist(page *storage.Page) (bool, error) {
 	return true, nil
 }
 
-func (s *Storage) decodePage(filePath string) (*storage.Page, error) {
+func (s Storage) decodePage(filePath string) (*storage.Page, error) {
 	f, err := os.Open(filePath)
 	if err != nil {
 		return nil, e.Wrap("can't decode page", err)

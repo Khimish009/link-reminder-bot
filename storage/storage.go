@@ -21,17 +21,17 @@ type Page struct {
 	UserName string
 }
 
-var ErrNoSavedPage = errors.New("no saved page")
+var ErrNoSavedPages = errors.New("no saved page")
 
 func (p Page) Hash() (string, error) {
 	hash := sha1.New()
 
 	if _, err := io.WriteString(hash, p.URL); err != nil {
-		return "", e.Wrap("can't canculate hash", err)
+		return "", e.Wrap("can't calculate hash", err)
 	}
 
 	if _, err := io.WriteString(hash, p.UserName); err != nil {
-		return "", e.Wrap("can't canculate hash", err)
+		return "", e.Wrap("can't calculate hash", err)
 	}
 
 	return fmt.Sprintf("%x", hash.Sum(nil)), nil

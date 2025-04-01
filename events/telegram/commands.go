@@ -70,11 +70,11 @@ func (p *Processor) sendRandom(chatID int, username string) (err error) {
 
 	page, err := p.storage.PickRandom(username)
 
-	if err != nil && !errors.Is(err, storage.ErrNoSavedPage) {
+	if err != nil && !errors.Is(err, storage.ErrNoSavedPages) {
 		return err
 	}
 
-	if errors.Is(err, storage.ErrNoSavedPage) {
+	if errors.Is(err, storage.ErrNoSavedPages) {
 		return p.tg.SendMessage(chatID, msgNoSavedPages)
 	}
 
